@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react'
 import {
   DollarSign,
   Plus,
+  Wallet,
   ShoppingCart,
   TrendingUp,
-  Wallet,
+  AlertTriangle,
+  SlidersHorizontal,
 } from 'lucide-react'
 import StatCard from './components/StatCard'
 import SpendingChart from './components/SpendingChart'
@@ -13,92 +15,97 @@ import TransactionList from './components/TransactionList'
 import Model from './components/Model'
 import { fetchData, createData, deleteData, updateData } from './api'
 
+
 function App() {
   const [expenses, setExpense] = useState([])
-  const [isLoading, setIsLoading] = useState(false)
   const [isModelOpen, setIsModelOpen] = useState(false)
+  const [isLimitOpen, setIsLimitOpen] = useState(false)
   const [editingExpense, setEditingExpense] = useState(null)
+  const [monthlyLimit, setMonthlyLimit] = useState(() => {
+    return Number(localStorage.getItem('monthlyLimit')) || 1000
+  })
   const [searchTerm, setSearchTerm] = useState('')
   const [filterCategory, setFilterCategory] = useState('All')
+  const [showAlert, setShowAlert] = useState(false)
 
   // 🧮 Tính toán thống kê
   const calculateTotal = (expenseList) => {
     const list = expenseList || []
     const total = list.reduce((sum, e) => sum + Number(e.amount || 0), 0)
-
     const categoryTotals = list.reduce((acc, e) => {
       const category = e.category || 'Uncategorized'
       acc[category] = (acc[category] || 0) + Number(e.amount || 0)
       return acc
     }, {})
-
     return {
       total,
       count: list.length,
       avg: list.length ? total / list.length : 0,
-      highest: list.length
-        ? Math.max(...list.map((e) => Number(e.amount || 0)))
-        : 0,
+      highest: list.length ? Math.max(...list.map((e) => Number(e.amount || 0))) : 0,
       categoryTotals,
     }
   }
 
   const stats = calculateTotal(expenses)
 
-  // 🔄 Lấy dữ liệu từ API khi load trang
+  // 🔄 Load dữ liệu từ API
   useEffect(() => {
     const loadExpenses = async () => {
-      setIsLoading(true)
       try {
         const expData = await fetchData()
         const normalized = (expData || []).map((e) => ({
           ...e,
-          date: e?.date
-            ? String(e.date).split('T')[0]
-            : new Date().toISOString().split('T')[0],
+          date: e?.date ? String(e.date).split('T')[0] : new Date().toISOString().split('T')[0],
         }))
         setExpense(normalized)
       } catch (error) {
         console.error('Error loading expenses:', error)
-      } finally {
-        setIsLoading(false)
       }
     }
-
     loadExpenses()
   }, [])
+  {/* Charts */}
+<div className='grid grid-cols-1 lg:grid-cols-5 gap-6 mb-8'>
+  <div className='lg:col-span-3'>
+    <SpendingChart expenses={expenses} />
+  </div>
+  <div className='lg:col-span-2'>
+    <CategoryChart categoryTotal={stats.categoryTotals} />
+  </div>
+</div>
+
+
+
+  // ⚠️ Kiểm tra vượt định mức
+  useEffect(() => {
+    if (stats.total > monthlyLimit) setShowAlert(true)
+    else setShowAlert(false)
+  }, [stats.total, monthlyLimit])
 
   // ➕ Thêm chi tiêu
   const handleAddExpense = async (payload) => {
     try {
       const created = await createData(payload)
-      if (!created) throw new Error('Failed to create expense')
-      setExpense((prev) => [
-        { ...created, date: created.date.split('T')[0] },
-        ...prev,
-      ])
+      setExpense((prev) => [{ ...created, date: created.date.split('T')[0] }, ...prev])
       setIsModelOpen(false)
     } catch (error) {
       console.error('Error adding expense:', error)
     }
   }
 
-  // ✏️ Bắt đầu sửa chi tiêu
+  // ✏️ Sửa chi tiêu
   const onEditExpense = (expense) => {
     setEditingExpense(expense)
     setIsModelOpen(true)
   }
 
-  // 💾 Lưu khi sửa
   const handleSaveEdit = async (payload) => {
     if (!editingExpense) return
     try {
       const updated = await updateData(editingExpense._id, payload)
       setExpense((prev) =>
         prev.map((e) =>
-          e._id === updated._id
-            ? { ...updated, date: updated.date.split('T')[0] }
-            : e
+          e._id === updated._id ? { ...updated, date: updated.date.split('T')[0] } : e
         )
       )
       setEditingExpense(null)
@@ -110,7 +117,7 @@ function App() {
 
   // 🗑️ Xóa chi tiêu
   const handleDeleteExpense = async (id) => {
-    if (!window.confirm('Delete this expense?')) return
+    if (!window.confirm('Delete this Expense?')) return
     try {
       await deleteData(id)
       setExpense((prev) => prev.filter((e) => e._id !== id))
@@ -119,31 +126,62 @@ function App() {
     }
   }
 
+  // 💰 Lưu định mức
+  const handleSaveLimit = (e) => {
+    e.preventDefault()
+    const newLimit = Number(e.target.limit.value)
+    if (isNaN(newLimit) || newLimit <= 0)
+      return alert('⚠️ Please enter a valid limit.')
+    setMonthlyLimit(newLimit)
+    localStorage.setItem('monthlyLimit', newLimit)
+    setIsLimitOpen(false)
+  }
+
   return (
     <div className='min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100'>
       {/* Header */}
       <div className='bg-white shadow-lg'>
-        <div className='max-w-7xl mx-auto px-6 py-6 lg:py-4 flex items-center justify-between'>
+        <div className='max-w-7xl mx-auto px-6 py-6 flex items-center justify-between'>
           <div>
             <h1 className='text-3xl font-bold text-gray-700 lg:text-4xl mb-1'>
               Expense Tracker
             </h1>
             <p className='text-gray-700'>Manage your finance with ease</p>
           </div>
+
+          {/* Buttons */}
           <div className='flex items-center gap-3'>
+            <button
+              onClick={() => setIsLimitOpen(true)}
+              className='px-4 py-2 bg-amber-500 text-white rounded-xl font-semibold flex items-center gap-2 hover:bg-amber-600 transition-all'
+            >
+              <SlidersHorizontal className='w-4 h-4' /> Set Limit
+            </button>
+
             <button
               onClick={() => {
                 setEditingExpense(null)
                 setIsModelOpen(true)
               }}
-              className='px-4 py-2 bg-gray-600 text-white rounded-xl
-              font-semibold hover:shadow-2xl transition-all flex items-center gap-2'
+              className='px-4 py-2 bg-gray-700 text-white rounded-xl font-semibold flex items-center gap-2 hover:bg-gray-800 transition-all'
             >
               <Plus className='w-4 h-4' /> Add Expense
             </button>
           </div>
         </div>
       </div>
+
+      {/* ⚠️ Alert vượt định mức */}
+      {showAlert && (
+        <div className='max-w-7xl mx-auto mt-6 px-6'>
+          <div className='bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl flex items-center gap-2'>
+            <AlertTriangle className='w-5 h-5 text-red-600' />
+            <p className='font-semibold'>
+              ⚠️ Warning: Your spending (${stats.total.toFixed(2)}) exceeded your monthly limit (${monthlyLimit.toFixed(2)})!
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <div className='max-w-7xl mx-auto px-6 py-8'>
@@ -153,7 +191,7 @@ function App() {
             value={`$${stats.total.toFixed(2)}`}
             title='Total Spent'
             icon={Wallet}
-            subtitle='This month'
+            subtitle={`Limit: $${monthlyLimit}`}
             bgColor='bg-gradient-to-br from-indigo-500 to-indigo-600'
             iconColor='bg-indigo-700'
           />
@@ -193,7 +231,7 @@ function App() {
           </div>
         </div>
 
-        {/* ✅ Transaction List */}
+        {/* Transactions */}
         <TransactionList
           expenses={expenses}
           onDelete={handleDeleteExpense}
@@ -205,7 +243,7 @@ function App() {
         />
       </div>
 
-      {/* Modal thêm/sửa */}
+      {/* Modal thêm/sửa chi tiêu */}
       <Model
         isOpen={isModelOpen}
         onclose={() => {
@@ -215,6 +253,43 @@ function App() {
         onsubmit={editingExpense ? handleSaveEdit : handleAddExpense}
         initialData={editingExpense}
       />
+
+      {/* 💰 Modal thiết lập định mức */}
+      {isLimitOpen && (
+        <div className='fixed inset-0 bg-black/30 flex items-center justify-center z-50 backdrop-blur-sm'>
+          <div className='bg-white rounded-3xl p-6 w-full max-w-md shadow-xl'>
+            <h2 className='text-2xl font-bold text-gray-900 mb-4'>Set Monthly Limit</h2>
+            <form onSubmit={handleSaveLimit} className='space-y-4'>
+              <div>
+                <label className='block text-sm font-semibold text-gray-700 mb-2'>
+                  Monthly Limit ($)
+                </label>
+                <input
+                  type='number'
+                  name='limit'
+                  defaultValue={monthlyLimit}
+                  className='w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-indigo-500'
+                />
+              </div>
+              <div className='flex gap-3 mt-4'>
+                <button
+                  type='submit'
+                  className='flex-1 bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition'
+                >
+                  Save Limit
+                </button>
+                <button
+                  type='button'
+                  onClick={() => setIsLimitOpen(false)}
+                  className='px-4 py-3 rounded-xl border font-semibold hover:bg-gray-100'
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
