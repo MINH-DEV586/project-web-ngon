@@ -11,7 +11,7 @@ function CategoryChart({ categoryTotal }) {
     color: COLORS[index % COLORS.length],
   }));
 
-  return (
+  return (  
     <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
       <h3 className="text-xl font-bold text-gray-900 mb-6">
         Category Distribution

@@ -1,33 +1,34 @@
-// api.js
-import axios from 'axios'
+import axios from 'axios';
 
-const BASE_URL = 'http://localhost:8000/api/v2'
+const API_URL = 'http://localhost:8000/api/v2/expense';
 
-const api = axios.create({
-  baseURL: BASE_URL,
-  timeout: 8000,
-})
 
-// ✅ Lấy danh sách chi tiêu
+// 🧠 Lấy token từ localStorage
+const getAuthHeader = () => {
+  const token = localStorage.getItem('token');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
+// 📦 Lấy tất cả chi tiêu
 export const fetchData = async () => {
-  const res = await api.get('/expense')
-  return (res.data && res.data.data) || []
-}
+  const res = await axios.get(API_URL, { headers: getAuthHeader() });
+  return res.data.data;
+};
 
-// ✅ Tạo mới chi tiêu
-export const createData = async (payload) => {
-  const res = await api.post('/expense', payload)
-  return (res.data && res.data.data) || []
-}
+// ➕ Thêm chi tiêu
+export const createData = async (data) => {
+  const res = await axios.post(API_URL, data, { headers: getAuthHeader() });
+  return res.data.data;
+};
 
-// ✅ Cập nhật chi tiêu
-export const updateData = async (id, payload) => {
-  const res = await api.put(`/expense/${id}`, payload)
-  return (res.data && res.data.data) || []
-}
+// ✏️ Cập nhật chi tiêu
+export const updateData = async (id, data) => {
+  const res = await axios.put(`${API_URL}/${id}`, data, { headers: getAuthHeader() });
+  return res.data.data;
+};
 
-// ✅ Xóa chi tiêu
+// 🗑️ Xóa chi tiêu
 export const deleteData = async (id) => {
-  const res = await api.delete(`/expense/${id}`)
-  return res.data || null
-}
+  const res = await axios.delete(`${API_URL}/${id}`, { headers: getAuthHeader() });
+  return res.data;
+};
