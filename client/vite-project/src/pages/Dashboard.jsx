@@ -17,6 +17,9 @@ import TransactionList from '../components/TransactionList'
 import Model from '../components/Model'
 import { fetchData, createData, deleteData, updateData } from '../api'
 
+// 🖼️ Thêm logo
+import logo from '../assets/favicon.png'
+
 function Dashboard() {
   const [expenses, setExpenses] = useState([])
   const [isModelOpen, setIsModelOpen] = useState(false)
@@ -141,13 +144,22 @@ function Dashboard() {
       {/* 🔹 Header */}
       <header className='bg-white shadow-lg'>
         <div className='max-w-7xl mx-auto px-6 py-6 flex items-center justify-between flex-wrap gap-3'>
-          <div>
-            <h1 className='text-3xl font-bold text-gray-700 lg:text-4xl mb-1'>
-              Expense Tracker
-            </h1>
-            <p className='text-gray-700'>Manage your finances with ease</p>
+          {/* 🖼️ Logo + Tiêu đề */}
+          <div className='flex items-center gap-3'>
+            <img
+              src={logo}
+              alt='Expense Tracker Logo'
+              className='w-10 h-10 rounded-xl object-cover shadow-sm'
+            />
+            <div>
+              <h1 className='text-3xl font-bold text-gray-700 lg:text-4xl mb-1'>
+                Expense Tracker
+              </h1>
+              <p className='text-gray-700 text-sm'>Manage your finances with ease</p>
+            </div>
           </div>
 
+          {/* 🔘 Nút điều khiển */}
           <div className='flex items-center gap-3 flex-wrap'>
             <button
               onClick={() => setIsLimitOpen(true)}
