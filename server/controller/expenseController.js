@@ -3,7 +3,7 @@ const Expense = require('../models/expenseModel');
 // 📦 Lấy tất cả chi tiêu
 exports.getAllExpenses = async (req, res) => {
   try {
-    const expenses = await Expense.find();
+    const expenses = await Expense.find({ userId: req.user.id }); // 👈 lọc theo user đăng nhập
     res.status(200).json({
       success: true,
       count: expenses.length,
@@ -14,17 +14,38 @@ exports.getAllExpenses = async (req, res) => {
   }
 };
 
+
 // ➕ Thêm chi tiêu mới
 exports.createExpense = async (req, res) => {
   try {
-    const { description, amount, category, date, notes } = req.body;
-    const expense = new Expense({ description, amount, category, date, notes });
-    const newExpense = await expense.save();
-    res.status(201).json({ success: true, data: newExpense });
+    console.log("📩 Body nhận được:", req.body);
+    console.log("👤 User:", req.user);
+
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ success: false, message: "User not authenticated" });
+    }
+
+    // ✅ Gộp dữ liệu body + userId
+    const payload = {
+      description: req.body.description,
+      amount: req.body.amount,
+      category: req.body.category,
+      date: req.body.date || new Date(),
+      notes: req.body.notes || '',
+      userId: req.user._id,
+    };
+
+    console.log("🧾 Payload tạo expense:", payload);
+
+    const expense = await Expense.create(payload);
+    res.status(201).json({ success: true, data: expense });
   } catch (error) {
+    console.error("❌ Lỗi khi tạo expense:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+
 
 // ✏️ Cập nhật chi tiêu
 exports.updateExpense = async (req, res) => {

@@ -7,7 +7,9 @@ import {
   TrendingUp,
   AlertTriangle,
   SlidersHorizontal,
+  LogOut,
 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import StatCard from '../components/StatCard'
 import SpendingChart from '../components/SpendingChart'
 import CategoryChart from '../components/CategoryChart'
@@ -15,27 +17,35 @@ import TransactionList from '../components/TransactionList'
 import Model from '../components/Model'
 import { fetchData, createData, deleteData, updateData } from '../api'
 
-
-
 function Dashboard() {
-  const [expenses, setExpense] = useState([])
+  const [expenses, setExpenses] = useState([])
   const [isModelOpen, setIsModelOpen] = useState(false)
   const [isLimitOpen, setIsLimitOpen] = useState(false)
   const [editingExpense, setEditingExpense] = useState(null)
-  const [monthlyLimit, setMonthlyLimit] = useState(() => {
-    return Number(localStorage.getItem('monthlyLimit')) || 1000
-  })
+  const [monthlyLimit, setMonthlyLimit] = useState(
+    Number(localStorage.getItem('monthlyLimit')) || 1000
+  )
   const [searchTerm, setSearchTerm] = useState('')
   const [filterCategory, setFilterCategory] = useState('All')
   const [showAlert, setShowAlert] = useState(false)
 
-  // 🧮 Tính toán thống kê
-  const calculateTotal = (expenseList) => {
-    const list = expenseList || []
+  const navigate = useNavigate()
+
+  // 🚪 Logout
+  const handleLogout = () => {
+    if (window.confirm('Bạn có chắc muốn đăng xuất không?')) {
+      localStorage.removeItem('token')
+      localStorage.removeItem('user')
+      navigate('/login', { replace: true })
+    }
+  }
+
+  // 📊 Tính toán thống kê
+  const calculateTotal = (list) => {
     const total = list.reduce((sum, e) => sum + Number(e.amount || 0), 0)
     const categoryTotals = list.reduce((acc, e) => {
-      const category = e.category || 'Uncategorized'
-      acc[category] = (acc[category] || 0) + Number(e.amount || 0)
+      const cat = e.category || 'Uncategorized'
+      acc[cat] = (acc[cat] || 0) + Number(e.amount || 0)
       return acc
     }, {})
     return {
@@ -49,45 +59,33 @@ function Dashboard() {
 
   const stats = calculateTotal(expenses)
 
-  // 🔄 Load dữ liệu từ API
+  // 🔄 Lấy dữ liệu từ API
   useEffect(() => {
     const loadExpenses = async () => {
       try {
-        const expData = await fetchData()
-        const normalized = (expData || []).map((e) => ({
+        const data = await fetchData()
+        const normalized = (data || []).map((e) => ({
           ...e,
-          date: e?.date ? String(e.date).split('T')[0] : new Date().toISOString().split('T')[0],
+          date: e?.date ? e.date.split('T')[0] : new Date().toISOString().split('T')[0],
         }))
-        setExpense(normalized)
+        setExpenses(normalized)
       } catch (error) {
         console.error('Error loading expenses:', error)
       }
     }
     loadExpenses()
   }, [])
-  {/* Charts */}
-<div className='grid grid-cols-1 lg:grid-cols-5 gap-6 mb-8'>
-  <div className='lg:col-span-3'>
-    <SpendingChart expenses={expenses} />
-  </div>
-  <div className='lg:col-span-2'>
-    <CategoryChart categoryTotal={stats.categoryTotals} />
-  </div>
-</div>
 
-
-
-  // ⚠️ Kiểm tra vượt định mức
+  // ⚠️ Cảnh báo vượt định mức
   useEffect(() => {
-    if (stats.total > monthlyLimit) setShowAlert(true)
-    else setShowAlert(false)
+    setShowAlert(stats.total > monthlyLimit)
   }, [stats.total, monthlyLimit])
 
   // ➕ Thêm chi tiêu
   const handleAddExpense = async (payload) => {
     try {
       const created = await createData(payload)
-      setExpense((prev) => [{ ...created, date: created.date.split('T')[0] }, ...prev])
+      setExpenses((prev) => [{ ...created, date: created.date.split('T')[0] }, ...prev])
       setIsModelOpen(false)
     } catch (error) {
       console.error('Error adding expense:', error)
@@ -104,7 +102,7 @@ function Dashboard() {
     if (!editingExpense) return
     try {
       const updated = await updateData(editingExpense._id, payload)
-      setExpense((prev) =>
+      setExpenses((prev) =>
         prev.map((e) =>
           e._id === updated._id ? { ...updated, date: updated.date.split('T')[0] } : e
         )
@@ -118,10 +116,10 @@ function Dashboard() {
 
   // 🗑️ Xóa chi tiêu
   const handleDeleteExpense = async (id) => {
-    if (!window.confirm('Delete this Expense?')) return
+    if (!window.confirm('Delete this expense?')) return
     try {
       await deleteData(id)
-      setExpense((prev) => prev.filter((e) => e._id !== id))
+      setExpenses((prev) => prev.filter((e) => e._id !== id))
     } catch (error) {
       console.error('Error deleting expense:', error)
     }
@@ -140,18 +138,17 @@ function Dashboard() {
 
   return (
     <div className='min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100'>
-      {/* Header */}
-      <div className='bg-white shadow-lg'>
-        <div className='max-w-7xl mx-auto px-6 py-6 flex items-center justify-between'>
+      {/* 🔹 Header */}
+      <header className='bg-white shadow-lg'>
+        <div className='max-w-7xl mx-auto px-6 py-6 flex items-center justify-between flex-wrap gap-3'>
           <div>
             <h1 className='text-3xl font-bold text-gray-700 lg:text-4xl mb-1'>
               Expense Tracker
             </h1>
-            <p className='text-gray-700'>Manage your finance with ease</p>
+            <p className='text-gray-700'>Manage your finances with ease</p>
           </div>
 
-          {/* Buttons */}
-          <div className='flex items-center gap-3'>
+          <div className='flex items-center gap-3 flex-wrap'>
             <button
               onClick={() => setIsLimitOpen(true)}
               className='px-4 py-2 bg-amber-500 text-white rounded-xl font-semibold flex items-center gap-2 hover:bg-amber-600 transition-all'
@@ -168,25 +165,33 @@ function Dashboard() {
             >
               <Plus className='w-4 h-4' /> Add Expense
             </button>
+
+            <button
+              onClick={handleLogout}
+              className='px-4 py-2 bg-red-500 text-white rounded-xl font-semibold flex items-center gap-2 hover:bg-red-600 transition-all'
+            >
+              <LogOut className='w-4 h-4' /> Logout
+            </button>
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* ⚠️ Alert vượt định mức */}
+      {/* ⚠️ Alert nếu vượt định mức */}
       {showAlert && (
         <div className='max-w-7xl mx-auto mt-6 px-6'>
           <div className='bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl flex items-center gap-2'>
             <AlertTriangle className='w-5 h-5 text-red-600' />
             <p className='font-semibold'>
-              ⚠️ Warning: Your spending (${stats.total.toFixed(2)}) exceeded your monthly limit (${monthlyLimit.toFixed(2)})!
+              ⚠️ Warning: Your spending (${stats.total.toFixed(2)}) exceeded your monthly
+              limit (${monthlyLimit.toFixed(2)})!
             </p>
           </div>
         </div>
       )}
 
-      {/* Main Content */}
-      <div className='max-w-7xl mx-auto px-6 py-8'>
-        {/* Stats */}
+      {/* 📈 Nội dung chính */}
+      <main className='max-w-7xl mx-auto px-6 py-8'>
+        {/* Thống kê */}
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8'>
           <StatCard
             value={`$${stats.total.toFixed(2)}`}
@@ -222,7 +227,7 @@ function Dashboard() {
           />
         </div>
 
-        {/* Charts */}
+        {/* Biểu đồ */}
         <div className='grid grid-cols-1 lg:grid-cols-5 gap-6 mb-8'>
           <div className='lg:col-span-3'>
             <SpendingChart expenses={expenses} />
@@ -232,7 +237,7 @@ function Dashboard() {
           </div>
         </div>
 
-        {/* Transactions */}
+        {/* Danh sách giao dịch */}
         <TransactionList
           expenses={expenses}
           onDelete={handleDeleteExpense}
@@ -242,9 +247,9 @@ function Dashboard() {
           filterCategory={filterCategory}
           setFilterCategory={setFilterCategory}
         />
-      </div>
+      </main>
 
-      {/* Modal thêm/sửa chi tiêu */}
+      {/* Modal Thêm / Sửa */}
       <Model
         isOpen={isModelOpen}
         onclose={() => {
@@ -255,7 +260,7 @@ function Dashboard() {
         initialData={editingExpense}
       />
 
-      {/* 💰 Modal thiết lập định mức */}
+      {/* Modal Giới hạn */}
       {isLimitOpen && (
         <div className='fixed inset-0 bg-black/30 flex items-center justify-center z-50 backdrop-blur-sm'>
           <div className='bg-white rounded-3xl p-6 w-full max-w-md shadow-xl'>

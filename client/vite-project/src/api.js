@@ -2,33 +2,57 @@ import axios from 'axios';
 
 const API_URL = 'http://localhost:8000/api/v2/expense';
 
-
-// 🧠 Lấy token từ localStorage
+// 🔐 Lấy header có token
 const getAuthHeader = () => {
   const token = localStorage.getItem('token');
-  return token ? { Authorization: `Bearer ${token}` } : {};
+  return {
+    headers: {
+      Authorization: token ? `Bearer ${token}` : '',
+      'Content-Type': 'application/json',
+    },
+  };
 };
 
-// 📦 Lấy tất cả chi tiêu
+// 📦 Lấy tất cả chi tiêu (theo user)
 export const fetchData = async () => {
-  const res = await axios.get(API_URL, { headers: getAuthHeader() });
-  return res.data.data;
+  try {
+    const res = await axios.get(API_URL, getAuthHeader());
+    return res.data.data || [];
+  } catch (error) {
+    console.error('❌ Fetch expenses failed:', error.response?.data || error.message);
+    throw error;
+  }
 };
 
-// ➕ Thêm chi tiêu
+// ➕ Tạo chi tiêu mới
 export const createData = async (data) => {
-  const res = await axios.post(API_URL, data, { headers: getAuthHeader() });
-  return res.data.data;
+  try {
+    const res = await axios.post(API_URL, data, getAuthHeader());
+    return res.data.data;
+  } catch (error) {
+    console.error('❌ Create expense failed:', error.response?.data || error.message);
+    throw error;
+  }
 };
 
 // ✏️ Cập nhật chi tiêu
 export const updateData = async (id, data) => {
-  const res = await axios.put(`${API_URL}/${id}`, data, { headers: getAuthHeader() });
-  return res.data.data;
+  try {
+    const res = await axios.put(`${API_URL}/${id}`, data, getAuthHeader());
+    return res.data.data;
+  } catch (error) {
+    console.error('❌ Update expense failed:', error.response?.data || error.message);
+    throw error;
+  }
 };
 
 // 🗑️ Xóa chi tiêu
 export const deleteData = async (id) => {
-  const res = await axios.delete(`${API_URL}/${id}`, { headers: getAuthHeader() });
-  return res.data;
+  try {
+    const res = await axios.delete(`${API_URL}/${id}`, getAuthHeader());
+    return res.data;
+  } catch (error) {
+    console.error('❌ Delete expense failed:', error.response?.data || error.message);
+    throw error;
+  }
 };
