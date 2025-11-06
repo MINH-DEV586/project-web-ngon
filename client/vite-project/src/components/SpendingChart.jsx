@@ -24,9 +24,13 @@ function SpendingChart({ expenses }) {
     const total = dayExpenses.reduce((sum, e) => sum + Number(e.amount || 0), 0);
 
     return {
-      date: new Date(date).toLocaleDateString('en-US', { weekday: 'short' }),
-      amount: parseFloat(total.toFixed(3)),
-    };
+  // Hiển thị ngày theo kiểu Việt Nam (VD: Thứ hai, 06/11/2025)
+  date: new Date(date).toLocaleDateString('vi-VN', { weekday: 'short' }),
+
+  // Hiển thị tiền kiểu Việt Nam, không có số 0 thừa
+  amount: Number(total).toLocaleString('vi-VN'),
+};
+
   });
 
   return (

@@ -320,7 +320,7 @@ function Dashboard() {
                   onClick={() => setIsLimitOpen(false)}
                   className='px-4 py-3 rounded-xl border font-semibold hover:bg-gray-100'
                 >
-                  Cancel
+                  Hủy
                 </button>
               </div>
             </form>

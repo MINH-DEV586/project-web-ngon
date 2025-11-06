@@ -48,7 +48,7 @@ function TransactionList({
           </p>
         </div>
         <div className='px-4 py-2 bg-gray-700 text-white rounded-full text-sm font-bold'>
-          {totalAmount.toFixed(3)} đ
+          {totalAmount.toLocaleString('vi-VN')} đ
         </div>
       </div>
 
@@ -129,7 +129,7 @@ function TransactionList({
                   <div className='flex items-start justify-between gap-3 mb-1'>
                     <h4 className='font-bold text-gray-900 truncate'>{description}</h4>
                     <span className='text-xl font-bold text-gray-900 whitespace-nowrap'>
-                      {Number(amount || 0).toFixed(3)} đ
+                      {Number(amount || 0).toLocaleString('vi-VN')} đ
                     </span>
                   </div>
                   <div className='flex items-center gap-2 text-xs'>

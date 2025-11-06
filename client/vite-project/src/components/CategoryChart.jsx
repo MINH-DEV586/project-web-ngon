@@ -33,7 +33,7 @@ function CategoryChart({ categoryTotal }) {
               <Cell key={`cell-${index}`} fill={entry.color} />
             ))}
           </Pie>
-          <Tooltip formatter={(value) => `${Number(value).toFixed(2)}`} />
+          <Tooltip  formatter={(value) => `${Number(value).toLocaleString('vi-VN')} đ`} />
         </PieChart>
       </ResponsiveContainer>
 

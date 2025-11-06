@@ -43,7 +43,7 @@ function Model({ isOpen, onsubmit, initialData, onclose }) {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">
-              {initialData ? 'Edit Expense' : 'Thêm chi tiêu'}
+              {initialData ? 'Sửa Chi Tiêu' : 'Thêm chi tiêu'}
             </h2>
             <p className="text-sm text-gray-500 mt-1">Theo dõi chi tiêu của bạn</p>
           </div>
@@ -165,13 +165,13 @@ function Model({ isOpen, onsubmit, initialData, onclose }) {
               className="flex-1 bg-gray-700 text-white py-3 rounded-xl font-bold hover:bg-gray-800"
               onClick={handleSubmit}
             >
-              {initialData ? 'Save Changes' : 'Lưu thay đổi'}
+              {initialData ? 'Lưu Thay Đổi' : 'Lưu thay đổi'}
             </button>
             <button
               className="px-4 py-3 rounded-xl border font-semibold hover:bg-gray-50"
               onClick={onclose}
             >
-              Cancel
+              Hủy
             </button>
           </div>
         </div>
