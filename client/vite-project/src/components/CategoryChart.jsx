@@ -14,7 +14,7 @@ function CategoryChart({ categoryTotal }) {
   return (  
     <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
       <h3 className="text-xl font-bold text-gray-900 mb-6">
-        Category Distribution
+        Chi Tiêu Theo Danh Mục
       </h3>
 
       <ResponsiveContainer width="100%" height={260}>
@@ -33,7 +33,7 @@ function CategoryChart({ categoryTotal }) {
               <Cell key={`cell-${index}`} fill={entry.color} />
             ))}
           </Pie>
-          <Tooltip formatter={(value) => `$${Number(value).toFixed(2)}`} />
+          <Tooltip formatter={(value) => `${Number(value).toFixed(2)}`} />
         </PieChart>
       </ResponsiveContainer>
 

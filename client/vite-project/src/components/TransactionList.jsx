@@ -10,7 +10,7 @@ function TransactionList({
   filterCategory = 'All',
   setFilterCategory = () => {}
 }) {
-  const categories = ['All', 'Food', 'Transport', 'Entertainment', 'Shopping', 'Bills', 'Others']
+  const categories = ['All', 'Food', 'Transport', 'Entertaiment', 'Shopping', 'Bills', 'Others']
 
   const getCategoryColor = (category) => {
     const colors = {
@@ -42,13 +42,13 @@ function TransactionList({
       {/* Header */}
       <div className='flex items-center justify-between mb-6'>
         <div>
-          <h3 className='text-xl font-bold text-gray-900'>Transactions</h3>
+          <h3 className='text-xl font-bold text-gray-900'>Giao Dịch</h3>
           <p className='text-sm text-gray-500 mt-1'>
-            {filteredExpenses.length} Total
+            Tổng: {filteredExpenses.length} giao dịch
           </p>
         </div>
         <div className='px-4 py-2 bg-gray-700 text-white rounded-full text-sm font-bold'>
-          ${totalAmount.toFixed(2)}
+          {totalAmount.toFixed(3)} đ
         </div>
       </div>
 
@@ -60,7 +60,7 @@ function TransactionList({
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             type='text'
-            placeholder='Search.....'
+            placeholder='Tìm kiếm.....'
             className='w-full px-4 pl-10 py-2 bg-gray-50 border-2 border-gray-200 
                        rounded-xl text-sm focus:outline-none focus:border-indigo-500'
           />
@@ -71,7 +71,7 @@ function TransactionList({
           className='px-4 py-2.5 bg-gray-50 border-2 border-indigo-500 rounded-xl text-sm font-semibold 
                      text-gray-700 focus:outline-none focus:border-indigo-500 cursor-pointer'
         >
-          <option value='All'>All</option>
+          <option value='All'>Tất cả</option>
           {categories.map((cat) => (
             <option value={cat} key={cat}>
               {cat}
@@ -79,6 +79,8 @@ function TransactionList({
           ))}
         </select>
       </div>
+      
+
 
       {/* Transaction List */}
       <div className='space-y-3 max-h-[480px] overflow-y-auto pr-2'>
@@ -88,8 +90,10 @@ function TransactionList({
             <div className='w-20 h-20 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4'>
               <Receipt className='w-10 h-10 text-gray-400' />
             </div>
-            <p className='text-gray-600 font-semibold'>No transactions found</p>
-            <p className='text-sm text-gray-400 mt-1'>Try different filters</p>
+            <p className='text-gray-600 font-semibold'>
+              Không tìm thấy giao dịch nào
+            </p>
+            <p className='text-sm text-gray-400 mt-1'>Thử các danh mục</p>
           </div>
         ) : (
           filteredExpenses.map((expense) => {
@@ -125,7 +129,7 @@ function TransactionList({
                   <div className='flex items-start justify-between gap-3 mb-1'>
                     <h4 className='font-bold text-gray-900 truncate'>{description}</h4>
                     <span className='text-xl font-bold text-gray-900 whitespace-nowrap'>
-                      ${Number(amount || 0).toFixed(2)}
+                      {Number(amount || 0).toFixed(3)} đ
                     </span>
                   </div>
                   <div className='flex items-center gap-2 text-xs'>

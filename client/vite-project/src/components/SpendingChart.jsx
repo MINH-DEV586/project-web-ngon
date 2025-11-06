@@ -25,14 +25,14 @@ function SpendingChart({ expenses }) {
 
     return {
       date: new Date(date).toLocaleDateString('en-US', { weekday: 'short' }),
-      amount: parseFloat(total.toFixed(2)),
+      amount: parseFloat(total.toFixed(3)),
     };
   });
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow-lg border-gray-100">
-      <h3 className="text-xl font-bold text-gray-900">Weekly Spending</h3>
-      <p className="text-sm text-gray-500 mt-1">Last 7 days trend</p>
+      <h3 className="text-xl font-bold text-gray-900">Chi Tiêu Hàng Tuần </h3>
+      <p className="text-sm text-gray-500 mt-1">Biểu đồ giao dịch 7 ngày qua</p>
 
       <ResponsiveContainer width="100%" height={260}>
         <LineChart data={chartData}>

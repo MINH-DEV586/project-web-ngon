@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { loginUser } from '../auth';
 import { useNavigate } from 'react-router-dom';
 
-function Login() {
+function Login({ setToken }) {
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
@@ -15,9 +15,10 @@ function Login() {
     e.preventDefault();
     const res = await loginUser(form);
     if (res.success && res.token) {
-      localStorage.setItem('token', res.token);
-      localStorage.setItem('user', JSON.stringify(res.user));
-      navigate('/');
+      localStorage.setItem("token", res.token);
+      localStorage.setItem("user", JSON.stringify(res.user));
+      setToken(res.token); // 👈 Cập nhật App ngay
+      navigate("/dashboard");
     } else {
       setError(res.message || 'Sai email hoặc mật khẩu');
     }

@@ -19,6 +19,9 @@ import { fetchData, createData, deleteData, updateData } from '../api'
 
 // 🖼️ Thêm logo
 import logo from '../assets/favicon.png'
+const formatVND = (amount) =>
+  new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount)
+
 
 function Dashboard() {
   const [expenses, setExpenses] = useState([])
@@ -130,14 +133,21 @@ function Dashboard() {
 
   // 💰 Lưu định mức
   const handleSaveLimit = (e) => {
-    e.preventDefault()
-    const newLimit = Number(e.target.limit.value)
-    if (isNaN(newLimit) || newLimit <= 0)
-      return alert('⚠️ Please enter a valid limit.')
-    setMonthlyLimit(newLimit)
-    localStorage.setItem('monthlyLimit', newLimit)
-    setIsLimitOpen(false)
-  }
+      e.preventDefault()
+      // Lấy giá trị, loại bỏ dấu chấm ra trước khi chuyển sang số
+      const rawValue = e.target.limit.value.replace(/\./g, '')
+      const newLimit = Number(rawValue)
+
+      if (isNaN(newLimit) || newLimit <= 0) {
+        alert('⚠️ Vui lòng nhập định mức hợp lệ.')
+        return
+      }
+
+      setMonthlyLimit(newLimit)
+      localStorage.setItem('monthlyLimit', newLimit)
+      setIsLimitOpen(false)
+}
+
 
   return (
     <div className='min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100'>
@@ -153,9 +163,9 @@ function Dashboard() {
             />
             <div>
               <h1 className='text-3xl font-bold text-gray-700 lg:text-4xl mb-1'>
-                Expense Tracker
+                Quản Lí Chi Tiêu
               </h1>
-              <p className='text-gray-700 text-sm'>Manage your finances with ease</p>
+              <p className='text-gray-700 text-sm'>Quản lí thu nhập của bạn một cách dễ dàng</p>
             </div>
           </div>
 
@@ -165,7 +175,7 @@ function Dashboard() {
               onClick={() => setIsLimitOpen(true)}
               className='px-4 py-2 bg-amber-500 text-white rounded-xl font-semibold flex items-center gap-2 hover:bg-amber-600 transition-all'
             >
-              <SlidersHorizontal className='w-4 h-4' /> Set Limit
+              <SlidersHorizontal className='w-4 h-4' /> Thiết Lập Định Mức
             </button>
 
             <button
@@ -175,7 +185,7 @@ function Dashboard() {
               }}
               className='px-4 py-2 bg-gray-700 text-white rounded-xl font-semibold flex items-center gap-2 hover:bg-gray-800 transition-all'
             >
-              <Plus className='w-4 h-4' /> Add Expense
+              <Plus className='w-4 h-4' /> Thêm Chi Tiêu
             </button>
 
             <button
@@ -194,8 +204,7 @@ function Dashboard() {
           <div className='bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl flex items-center gap-2'>
             <AlertTriangle className='w-5 h-5 text-red-600' />
             <p className='font-semibold'>
-              ⚠️ Warning: Your spending (${stats.total.toFixed(2)}) exceeded your monthly
-              limit (${monthlyLimit.toFixed(2)})!
+              ⚠️ Warning: Chi tiêu của bạn ({formatVND(stats.total)}) đã vượt quá số tiền hàng tháng của bạn ({formatVND(monthlyLimit)})!
             </p>
           </div>
         </div>
@@ -206,34 +215,34 @@ function Dashboard() {
         {/* Thống kê */}
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8'>
           <StatCard
-            value={`$${stats.total.toFixed(2)}`}
-            title='Total Spent'
+            value={formatVND(stats.total)}
+            title='Tổng Chi tiêu'
             icon={Wallet}
-            subtitle={`Limit: $${monthlyLimit}`}
+            subtitle={`Giới hạn chi tiêu: ${formatVND(monthlyLimit)}`}
             bgColor='bg-gradient-to-br from-indigo-500 to-indigo-600'
             iconColor='bg-indigo-700'
           />
           <StatCard
             value={stats.count}
-            title='Expenses'
+            title='Giao Dịch'
             icon={ShoppingCart}
-            subtitle={`${stats.count} Transactions`}
+            subtitle='Chi tiêu'
             bgColor='bg-gradient-to-br from-purple-500 to-purple-600'
             iconColor='bg-purple-700'
           />
           <StatCard
-            value={`$${stats.avg.toFixed(2)}`}
-            title='Average'
+            value={formatVND(stats.avg)}
+            title='Trung Bình'
             icon={TrendingUp}
-            subtitle='Per expense'
+            subtitle='Mỗi giao dịch'
             bgColor='bg-gradient-to-br from-pink-500 to-pink-600'
             iconColor='bg-pink-700'
           />
           <StatCard
-            value={`$${stats.highest.toFixed(2)}`}
-            title='Highest'
+            value={formatVND(stats.highest)}
+            title='Cao nhất'
             icon={DollarSign}
-            subtitle='Single expense'
+            subtitle='Giao dịch cao nhất'
             bgColor='bg-gradient-to-br from-orange-500 to-orange-600'
             iconColor='bg-orange-700'
           />
@@ -276,25 +285,35 @@ function Dashboard() {
       {isLimitOpen && (
         <div className='fixed inset-0 bg-black/30 flex items-center justify-center z-50 backdrop-blur-sm'>
           <div className='bg-white rounded-3xl p-6 w-full max-w-md shadow-xl'>
-            <h2 className='text-2xl font-bold text-gray-900 mb-4'>Set Monthly Limit</h2>
+            <h2 className='text-2xl font-bold text-gray-900 mb-4'>Giới hạn số tiền trong tháng</h2>
             <form onSubmit={handleSaveLimit} className='space-y-4'>
               <div>
                 <label className='block text-sm font-semibold text-gray-700 mb-2'>
-                  Monthly Limit ($)
+                  Giới hạn số tiền tháng này (₫)
                 </label>
                 <input
-                  type='number'
-                  name='limit'
-                  defaultValue={monthlyLimit}
-                  className='w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-indigo-500'
-                />
+                    type='text'
+                    name='limit'
+                    value={new Intl.NumberFormat('vi-VN').format(monthlyLimit)}
+                    onChange={(e) => {
+                      // Bỏ dấu chấm ra để lấy số thực
+                      const rawValue = e.target.value.replace(/\./g, '')
+                      // Nếu là số hợp lệ thì cập nhật
+                      if (!isNaN(rawValue) && rawValue !== '') {
+                        setMonthlyLimit(Number(rawValue))
+                      } else if (rawValue === '') {
+                        setMonthlyLimit(0)
+                      }
+                    }}
+                    className='w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-indigo-500'
+                  />
               </div>
               <div className='flex gap-3 mt-4'>
                 <button
                   type='submit'
                   className='flex-1 bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition'
                 >
-                  Save Limit
+                  Lưu
                 </button>
                 <button
                   type='button'

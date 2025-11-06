@@ -1,32 +1,36 @@
-import React from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import React, { useState } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import LandingPage from "./pages/LandingPage"; // 👈 thêm dòng này
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Dashboard from "./pages/DashBoard";
-import LandingPage from "./pages/LandingPage";
+import Dashboard from "./pages/Dashboard";
 
-export default function App() {
-  const token = localStorage.getItem("token");
+function App() {
+  const [token, setToken] = useState(localStorage.getItem("token"));
 
   return (
-    <BrowserRouter>
+    <Router>
       <Routes>
-        {/* Nếu chưa đăng nhập thì vào LandingPage, nếu có token thì vào Dashboard */}
-        <Route
-          path="/"
-          element={<Navigate to={token ? "/dashboard" : "/landing"} />}
-        />
+        {/* Trang landing - trang đầu tiên khi mở web */}
+        <Route path="/" element={<LandingPage />} />
 
-        <Route path="/landing" element={<LandingPage />} />
-        <Route path="/login" element={<Login />} />
+        {/* Đăng nhập */}
+        <Route path="/login" element={<Login setToken={setToken} />} />
+
+        {/* Đăng ký */}
         <Route path="/register" element={<Register />} />
 
-        {/* Chặn truy cập nếu chưa login */}
+        {/* Dashboard - chỉ vào khi có token */}
         <Route
           path="/dashboard"
-          element={token ? <Dashboard /> : <Navigate to="/login" />}
+          element={token ? <Dashboard /> : <Navigate to="/login" replace />}
         />
+
+        {/* Mặc định - nếu sai đường dẫn */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </BrowserRouter>
+    </Router>
   );
 }
+
+export default App;
