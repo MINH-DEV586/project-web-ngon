@@ -22,7 +22,7 @@ export default function LandingPage() {
           onClick={handleGetStarted}
           className="bg-yellow-400 text-indigo-900 px-6 py-2 rounded-full font-semibold shadow-lg hover:bg-yellow-300 transition-all"
         >
-          Get Started
+          Đăng nhập
         </motion.button>
       </div>
 
@@ -36,7 +36,7 @@ export default function LandingPage() {
           className="md:w-1/2 space-y-6 text-center md:text-left"
         >
           <h1 className="text-5xl md:text-6xl font-extrabold leading-tight">
-            Smart <span className="text-yellow-300">Expense</span> Tracker
+            Theo dõi <span className="text-yellow-300">Chi</span> Tiêu
           </h1>
           <p className="text-white/90 text-lg leading-relaxed">
             Theo dõi chi tiêu, quản lý tài chính cá nhân và đạt được mục tiêu tiết kiệm của bạn
@@ -49,7 +49,7 @@ export default function LandingPage() {
             onClick={handleGetStarted}
             className="bg-white text-indigo-700 px-8 py-3 rounded-full font-bold shadow-xl hover:bg-yellow-300 hover:text-indigo-900 transition-all"
           >
-            Get Started
+            Đăng nhập
           </motion.button>
         </motion.div>
 

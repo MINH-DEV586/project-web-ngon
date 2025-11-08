@@ -16,7 +16,7 @@ function TransactionList({
     const colors = {
       Food: '#10b981',
       Transport: '#3b82f6',
-      Entertainment: '#8b5cf6',
+      Entertainment: '#05020eff',
       Shopping: '#ec4899',
       Bills: '#ef4444',
       Others: '#6b7280',

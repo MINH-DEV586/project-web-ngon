@@ -50,7 +50,7 @@ function SpendingChart({ expenses }) {
           <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
           <XAxis dataKey="date" stroke="#9CA3AF" fontSize={12} />
           <YAxis stroke="#9CA3AF" fontSize={12} />
-          <Tooltip formatter={(value) => [`$${value}`, 'Spent']} />
+          <Tooltip formatter={(value) => [`${value.toLocaleString('vi-VN')} ₫`,'Đã tiêu',]}/>
           <Line
             type="monotone"
             dataKey="amount"

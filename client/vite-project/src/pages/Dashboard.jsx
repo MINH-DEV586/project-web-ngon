@@ -15,6 +15,9 @@ import SpendingChart from '../components/SpendingChart'
 import CategoryChart from '../components/CategoryChart'
 import TransactionList from '../components/TransactionList'
 import Model from '../components/Model'
+import DarkLight from '../components/darklight'
+import Hello from '../components/Hello'
+import Export from '../components/Export'
 import { fetchData, createData, deleteData, updateData } from '../api'
 
 // 🖼️ Thêm logo
@@ -171,6 +174,9 @@ function Dashboard() {
 
           {/* 🔘 Nút điều khiển */}
           <div className='flex items-center gap-3 flex-wrap'>
+            <DarkLight />
+            <Hello />
+            <Export expenses={expenses} />
             <button
               onClick={() => setIsLimitOpen(true)}
               className='px-4 py-2 bg-amber-500 text-white rounded-xl font-semibold flex items-center gap-2 hover:bg-amber-600 transition-all'
@@ -192,7 +198,7 @@ function Dashboard() {
               onClick={handleLogout}
               className='px-4 py-2 bg-red-500 text-white rounded-xl font-semibold flex items-center gap-2 hover:bg-red-600 transition-all'
             >
-              <LogOut className='w-4 h-4' /> Logout
+              <LogOut className='w-4 h-4' /> Đăng xuất
             </button>
           </div>
         </div>
@@ -204,7 +210,7 @@ function Dashboard() {
           <div className='bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl flex items-center gap-2'>
             <AlertTriangle className='w-5 h-5 text-red-600' />
             <p className='font-semibold'>
-              ⚠️ Warning: Chi tiêu của bạn ({formatVND(stats.total)}) đã vượt quá số tiền hàng tháng của bạn ({formatVND(monthlyLimit)})!
+              ⚠️ Cảnh báo: Chi tiêu của bạn ({formatVND(stats.total)}) đã vượt quá số tiền hàng tháng của bạn ({formatVND(monthlyLimit)})!
             </p>
           </div>
         </div>

@@ -105,7 +105,7 @@ function Model({ isOpen, onsubmit, initialData, onclose }) {
             {/* Date */}
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">
-                Date
+                Ngày/tháng/năm
               </label>
               <input
                 type="date"
