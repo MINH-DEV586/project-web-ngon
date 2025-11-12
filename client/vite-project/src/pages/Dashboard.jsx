@@ -15,7 +15,6 @@ import SpendingChart from '../components/SpendingChart'
 import CategoryChart from '../components/CategoryChart'
 import TransactionList from '../components/TransactionList'
 import Model from '../components/Model'
-import DarkLight from '../components/darklight'
 import Hello from '../components/Hello'
 import Export from '../components/Export'
 import { fetchData, createData, deleteData, updateData } from '../api'
@@ -174,7 +173,7 @@ function Dashboard() {
 
           {/* 🔘 Nút điều khiển */}
           <div className='flex items-center gap-3 flex-wrap'>
-            <DarkLight />
+            
             <Hello />
             <Export expenses={expenses} />
             <button
