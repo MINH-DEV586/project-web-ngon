@@ -56,3 +56,44 @@ export const deleteData = async (id) => {
     throw error;
   }
 };
+
+// 👤 Lấy thông tin người dùng
+export const getUserProfile = async () => {
+  try {
+    const res = await axios.get('http://localhost:8000/api/v2/auth/profile', getAuthHeader());
+    return res.data.user;
+  } catch (error) {
+    console.error('❌ Fetch user profile failed:', error.response?.data || error.message);
+    throw error;
+  }
+};
+
+// 🔐 Đổi mật khẩu
+export const changePassword = async (currentPassword, newPassword, confirmPassword) => {
+  try {
+    const res = await axios.put(
+      'http://localhost:8000/api/v2/auth/change-password',
+      { currentPassword, newPassword, confirmPassword },
+      getAuthHeader()
+    );
+    return res.data;
+  } catch (error) {
+    console.error('❌ Change password failed:', error.response?.data || error.message);
+    throw error;
+  }
+};
+
+// ✏️ Cập nhật tên người dùng
+export const updateProfile = async (name, avatar) => {
+  try {
+    const res = await axios.put(
+      'http://localhost:8000/api/v2/auth/update-profile',
+      { name, avatar },
+      getAuthHeader()
+    );
+    return res.data.user;
+  } catch (error) {
+    console.error('❌ Update profile failed:', error.response?.data || error.message);
+    throw error;
+  }
+};

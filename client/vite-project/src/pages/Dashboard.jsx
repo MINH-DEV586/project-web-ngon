@@ -7,7 +7,8 @@ import {
   TrendingUp,
   AlertTriangle,
   SlidersHorizontal,
-  LogOut,
+  Moon,
+  Sun,
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import StatCard from '../components/StatCard'
@@ -17,6 +18,10 @@ import TransactionList from '../components/TransactionList'
 import Model from '../components/Model'
 import Hello from '../components/Hello'
 import Export from '../components/Export'
+import UserMenu from '../components/UserMenu'
+import UserProfile from '../components/UserProfile'
+import ChangePassword from '../components/ChangePassword'
+import EditProfile from '../components/EditProfile'
 import { fetchData, createData, deleteData, updateData } from '../api'
 
 // 🖼️ Thêm logo
@@ -25,10 +30,13 @@ const formatVND = (amount) =>
   new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount)
 
 
-function Dashboard() {
+function Dashboard({ isDark, setIsDark }) {
   const [expenses, setExpenses] = useState([])
   const [isModelOpen, setIsModelOpen] = useState(false)
   const [isLimitOpen, setIsLimitOpen] = useState(false)
+  const [isProfileOpen, setIsProfileOpen] = useState(false)
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false)
+  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false)
   const [editingExpense, setEditingExpense] = useState(null)
   const [monthlyLimit, setMonthlyLimit] = useState(
     Number(localStorage.getItem('monthlyLimit')) || 1000
@@ -38,15 +46,6 @@ function Dashboard() {
   const [showAlert, setShowAlert] = useState(false)
 
   const navigate = useNavigate()
-
-  // 🚪 Logout
-  const handleLogout = () => {
-    if (window.confirm('Bạn có chắc muốn đăng xuất không?')) {
-      localStorage.removeItem('token')
-      localStorage.removeItem('user')
-      navigate('/login', { replace: true })
-    }
-  }
 
   // 📊 Tính toán thống kê
   const calculateTotal = (list) => {
@@ -152,9 +151,9 @@ function Dashboard() {
 
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100'>
+    <div className={`min-h-screen transition-colors ${isDark ? 'bg-gray-900' : 'bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100'}`}>
       {/* 🔹 Header */}
-      <header className='bg-white shadow-lg'>
+      <header className={`shadow-lg ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
         <div className='max-w-7xl mx-auto px-6 py-6 flex items-center justify-between flex-wrap gap-3'>
           {/* 🖼️ Logo + Tiêu đề */}
           <div className='flex items-center gap-3'>
@@ -164,10 +163,10 @@ function Dashboard() {
               className='w-10 h-10 rounded-xl object-cover shadow-sm'
             />
             <div>
-              <h1 className='text-3xl font-bold text-gray-700 lg:text-4xl mb-1'>
+              <h1 className={`text-3xl font-bold lg:text-4xl mb-1 ${isDark ? 'text-gray-100' : 'text-gray-700'}`}>
                 Quản Lí Chi Tiêu
               </h1>
-              <p className='text-gray-700 text-sm'>Quản lí thu nhập của bạn một cách dễ dàng</p>
+              <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-700'}`}>Quản lí thu nhập của bạn một cách dễ dàng</p>
             </div>
           </div>
 
@@ -176,6 +175,7 @@ function Dashboard() {
             
             <Hello />
             <Export expenses={expenses} />
+            
             <button
               onClick={() => setIsLimitOpen(true)}
               className='px-4 py-2 bg-amber-500 text-white rounded-xl font-semibold flex items-center gap-2 hover:bg-amber-600 transition-all'
@@ -183,22 +183,37 @@ function Dashboard() {
               <SlidersHorizontal className='w-4 h-4' /> Thiết Lập Định Mức
             </button>
 
+            {/* Dark Mode Toggle */}
+            <button
+              onClick={() => setIsDark(!isDark)}
+              className={`px-4 py-2 rounded-xl font-semibold flex items-center gap-2 transition-all ${
+                isDark 
+                  ? 'bg-yellow-500 hover:bg-yellow-600 text-gray-900' 
+                  : 'bg-gray-700 hover:bg-gray-800 text-white'
+              }`}
+              title={isDark ? 'Chế độ sáng' : 'Chế độ tối'}
+            >
+              {isDark ? <Sun className='w-4 h-4' /> : <Moon className='w-4 h-4' />}
+            </button>
+
             <button
               onClick={() => {
                 setEditingExpense(null)
                 setIsModelOpen(true)
               }}
-              className='px-4 py-2 bg-gray-700 text-white rounded-xl font-semibold flex items-center gap-2 hover:bg-gray-800 transition-all'
+              className={`px-4 py-2 text-white rounded-xl font-semibold flex items-center gap-2 transition-all ${
+                isDark ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-700 hover:bg-gray-800'
+              }`}
             >
               <Plus className='w-4 h-4' /> Thêm Chi Tiêu
             </button>
 
-            <button
-              onClick={handleLogout}
-              className='px-4 py-2 bg-red-500 text-white rounded-xl font-semibold flex items-center gap-2 hover:bg-red-600 transition-all'
-            >
-              <LogOut className='w-4 h-4' /> Đăng xuất
-            </button>
+            {/* UserMenu Dropdown */}
+            <UserMenu
+              onOpenProfile={() => setIsProfileOpen(true)}
+              onOpenChangePassword={() => setIsChangePasswordOpen(true)}
+              onOpenEditProfile={() => setIsEditProfileOpen(true)}
+            />
           </div>
         </div>
       </header>
@@ -206,7 +221,7 @@ function Dashboard() {
       {/* ⚠️ Alert nếu vượt định mức */}
       {showAlert && (
         <div className='max-w-7xl mx-auto mt-6 px-6'>
-          <div className='bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl flex items-center gap-2'>
+          <div className={`${isDark ? 'bg-red-900 border-red-700 text-red-200' : 'bg-red-100 border-red-400 text-red-700'} border px-4 py-3 rounded-xl flex items-center gap-2`}>
             <AlertTriangle className='w-5 h-5 text-red-600' />
             <p className='font-semibold'>
               ⚠️ Cảnh báo: Chi tiêu của bạn ({formatVND(stats.total)}) đã vượt quá số tiền hàng tháng của bạn ({formatVND(monthlyLimit)})!
@@ -289,11 +304,11 @@ function Dashboard() {
       {/* Modal Giới hạn */}
       {isLimitOpen && (
         <div className='fixed inset-0 bg-black/30 flex items-center justify-center z-50 backdrop-blur-sm'>
-          <div className='bg-white rounded-3xl p-6 w-full max-w-md shadow-xl'>
-            <h2 className='text-2xl font-bold text-gray-900 mb-4'>Giới hạn số tiền trong tháng</h2>
+          <div className={`rounded-3xl p-6 w-full max-w-md shadow-xl ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
+            <h2 className={`text-2xl font-bold mb-4 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>Giới hạn số tiền trong tháng</h2>
             <form onSubmit={handleSaveLimit} className='space-y-4'>
               <div>
-                <label className='block text-sm font-semibold text-gray-700 mb-2'>
+                <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                   Giới hạn số tiền tháng này (₫)
                 </label>
                 <input
@@ -310,7 +325,9 @@ function Dashboard() {
                         setMonthlyLimit(0)
                       }
                     }}
-                    className='w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-indigo-500'
+                    className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:border-indigo-500 transition ${
+                      isDark ? 'bg-gray-700 border-gray-600 text-gray-100' : 'bg-gray-50 border-gray-200 text-gray-900'
+                    }`}
                   />
               </div>
               <div className='flex gap-3 mt-4'>
@@ -332,6 +349,19 @@ function Dashboard() {
           </div>
         </div>
       )}
+
+      {/* 👤 Modal Thông tin người dùng */}
+      <UserProfile isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} />
+
+      {/* 🔐 Modal Đổi mật khẩu */}
+      <ChangePassword isOpen={isChangePasswordOpen} onClose={() => setIsChangePasswordOpen(false)} />
+
+      {/* ✏️ Modal Chỉnh sửa hồ sơ */}
+      <EditProfile 
+        isOpen={isEditProfileOpen} 
+        onClose={() => setIsEditProfileOpen(false)}
+        onProfileUpdated={() => window.location.reload()}
+      />
     </div>
   )
 }

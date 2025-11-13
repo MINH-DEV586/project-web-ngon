@@ -17,6 +17,10 @@
       required: [true, 'Please enter your password'],
       minlength: 6,
       select: false
+    },
+    avatar: {
+      type: String,
+      default: null
     }
   }, { timestamps: true });
 
