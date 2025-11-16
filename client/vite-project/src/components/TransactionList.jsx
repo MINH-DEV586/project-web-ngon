@@ -1,5 +1,6 @@
 import { Receipt, Search, Edit2, Trash2 } from 'lucide-react'
 import React from 'react'
+import { categories as CATEGORY_LIST, toVN } from '../utils/categoryLabels'
 
 function TransactionList({
   expenses = [],
@@ -10,13 +11,14 @@ function TransactionList({
   filterCategory = 'All',
   setFilterCategory = () => {}
 }) {
-  const categories = ['All', 'Food', 'Transport', 'Entertaiment', 'Shopping', 'Bills', 'Others']
+  const categories = CATEGORY_LIST
 
   const getCategoryColor = (category) => {
     const colors = {
       Food: '#10b981',
       Transport: '#3b82f6',
       Entertainment: '#05020eff',
+      Entertaiment: '#05020eff',
       Shopping: '#ec4899',
       Bills: '#ef4444',
       Others: '#6b7280',
@@ -73,8 +75,8 @@ function TransactionList({
         >
           <option value='All'>Tất cả</option>
           {categories.map((cat) => (
-            <option value={cat} key={cat}>
-              {cat}
+            <option value={cat.value} key={cat.value}>
+              {cat.label}
             </option>
           ))}
         </select>
@@ -137,7 +139,7 @@ function TransactionList({
                       className='px-2.5 py-1 rounded-lg font-bold text-gray-700'
                       style={{ backgroundColor: '#f3f4f6' }}
                     >
-                      {category}
+                      {toVN(category)}
                     </span>
                     <span className='text-gray-400'>•</span>
                     <span className='text-gray-500 font-medium'>{displayDate}</span>

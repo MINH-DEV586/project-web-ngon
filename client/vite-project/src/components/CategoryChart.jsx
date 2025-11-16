@@ -1,4 +1,5 @@
 import React from "react";
+import { toVN } from '../utils/categoryLabels'
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
 const COLORS = ["#6366F1", "#22C55E", "#EAB308", "#F43F5E"];
@@ -6,7 +7,7 @@ const COLORS = ["#6366F1", "#22C55E", "#EAB308", "#F43F5E"];
 function CategoryChart({ categoryTotal }) {
   // ✅ Sửa tên key từ "colour" → "color" (thống nhất với cách dùng)
   const data = Object.entries(categoryTotal || {}).map(([name, value], index) => ({
-    name,
+    name: toVN(name),
     value,
     color: COLORS[index % COLORS.length],
   }));

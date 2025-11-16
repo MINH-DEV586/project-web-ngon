@@ -97,3 +97,19 @@ export const updateProfile = async (name, avatar) => {
     throw error;
   }
 };
+
+// 📊 Lấy báo cáo hàng tháng
+export const getMonthlyReport = async (month, year, monthlyLimit = null) => {
+  try {
+    const params = new URLSearchParams();
+    if (month) params.append('month', month);
+    if (year) params.append('year', year);
+    if (monthlyLimit !== null) params.append('monthlyLimit', monthlyLimit);
+
+    const res = await axios.get(`${API_URL}/reports/monthly?${params.toString()}`, getAuthHeader());
+    return res.data.data;
+  } catch (error) {
+    console.error('❌ Get monthly report failed:', error.response?.data || error.message);
+    throw error;
+  }
+};

@@ -4,6 +4,7 @@ import LandingPage from "./pages/LandingPage"; // 👈 thêm dòng này
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
+import MonthlyReport from "./pages/MonthlyReport";
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token"));
@@ -36,6 +37,11 @@ function App() {
         <Route
           path="/dashboard"
           element={token ? <Dashboard isDark={isDark} setIsDark={setIsDark} /> : <Navigate to="/login" replace />}
+        />
+        {/* Monthly report */}
+        <Route
+          path="/reports/monthly"
+          element={token ? <MonthlyReport /> : <Navigate to="/login" replace />}
         />
 
         {/* Mặc định - nếu sai đường dẫn */}

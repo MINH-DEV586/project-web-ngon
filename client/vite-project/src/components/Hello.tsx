@@ -32,7 +32,7 @@ const getRandomMessage = (): string => {
 };
 
 
-const Hello: React.FC = () => {
+const Hello: React.FC<{ token?: string | null }> = ({ token }) => {
   useEffect(() => {
     // 1. Lấy tên người dùng
     const userName: string = getUserName();
@@ -49,10 +49,9 @@ const Hello: React.FC = () => {
         draggable: true,
         progress: undefined,
         theme: "dark",
-        
     });
 
-  }, []); // Chỉ chạy một lần sau khi component được mount
+  }, [token]); // Chạy lại mỗi khi token thay đổi
 
   return <ToastContainer />;
 };

@@ -91,3 +91,41 @@ exports.delete = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+// 📈 Báo cáo hàng tháng: tổng, top danh mục, chi theo ngày, tỉ lệ tiết kiệm
+exports.getMonthlyReport = async (req, res) => {
+  try {
+    const year = Number(req.query.year) || new Date().getFullYear();
+    const month = Number(req.query.month) || (new Date().getMonth() + 1); // 1-12
+    const monthlyLimit = req.query.monthlyLimit ? Number(req.query.monthlyLimit) : null;
+
+    const start = new Date(year, month - 1, 1);
+    const end = new Date(year, month, 1);
+
+    const results = await Expense.aggregate([
+      { $match: { userId: req.user._id, date: { $gte: start, $lt: end } } },
+      {
+        $facet: {
+          total: [ { $group: { _id: null, total: { $sum: '$amount' } } } ],
+          byCategory: [ { $group: { _id: '$category', total: { $sum: '$amount' } } }, { $sort: { total: -1 } } ],
+          byDay: [ { $group: { _id: { $dayOfMonth: '$date' }, total: { $sum: '$amount' } } }, { $sort: { '_id': 1 } } ]
+        }
+      }
+    ]);
+
+    const total = (results[0].total[0] && results[0].total[0].total) || 0;
+    const topCategories = (results[0].byCategory || []).map((r) => ({ category: r._id, total: r.total }));
+    const daily = (results[0].byDay || []).map((d) => ({ day: d._id, total: d.total }));
+
+    let savingsRatio = null;
+    if (monthlyLimit && monthlyLimit > 0) {
+      const ratio = (monthlyLimit - total) / monthlyLimit;
+      savingsRatio = Math.max(0, ratio); // không âm
+    }
+
+    res.json({ success: true, data: { total, topCategories, daily, savingsRatio, month, year } });
+  } catch (error) {
+    console.error('Error generating monthly report:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

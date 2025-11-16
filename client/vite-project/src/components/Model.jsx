@@ -1,5 +1,6 @@
 import { X } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
+import { categories as CATEGORY_LIST } from '../utils/categoryLabels'
 
 function Model({ isOpen, onsubmit, initialData, onclose }) {
   const empty = {
@@ -10,7 +11,7 @@ function Model({ isOpen, onsubmit, initialData, onclose }) {
     notes: '',
   }
 
-  const categories = ['Food', 'Transport', 'Entertaiment', 'Shopping', 'Bills', 'Others']
+  const categories = CATEGORY_LIST
   const [formData, setFormData] = useState(initialData || empty)
 
   useEffect(() => {
@@ -127,16 +128,16 @@ function Model({ isOpen, onsubmit, initialData, onclose }) {
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
               {categories.map((cat) => (
                 <button
-                  key={cat}
+                  key={cat.value}
                   type="button"
-                  onClick={() => setFormData({ ...formData, category: cat })}
+                  onClick={() => setFormData({ ...formData, category: cat.value })}
                   className={`px-3 py-2 rounded-xl text-xs font-bold transition-all ${
-                    formData.category === cat
+                    formData.category === cat.value
                       ? 'bg-indigo-600 text-white scale-105 shadow-lg'
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }`}
                 >
-                  {cat}
+                  {cat.label}
                 </button>
               ))}
             </div>
